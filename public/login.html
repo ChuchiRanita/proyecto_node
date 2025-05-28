@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | Taller Node.js</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    .container::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 50% 50%, #0000 0, #0000 2px, hsl(0 0 4%) 2px);
+      background-size: 8px 8px;
+      --f: blur(1em) brightness(6);
+      animation: hueSpin 10s linear infinite;
+    }
+
+    @keyframes hueSpin {
+      0% { backdrop-filter: var(--f) hue-rotate(0deg); }
+      100% { backdrop-filter: var(--f) hue-rotate(360deg); }
+    }
+
+    .login-box {
+      z-index: 2;
+      background: #7a5f5f;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 6px 6px 10px rgba(0, 0, 0, 1),
+                  -1px -1px 5px rgba(255, 255, 255, 0.1);
+      color: white;
+      max-width: 400px;
+      margin: auto;
+      margin-top: 10%;
+      position: relative;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      background-color: #212121;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      color: white;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    input::placeholder {
+      color: #aaa;
+    }
+
+    .btn-login {
+      width: 100%;
+      background: transparent;
+      border: 2px solid #37FF8B;
+      color: #37FF8B;
+      text-transform: uppercase;
+      font-weight: bold;
+      padding: 10px;
+      transition: 0.3s;
+    }
+
+    .btn-login:hover {
+      background-color: #37FF8B;
+      color: black;
+      box-shadow: 0 0 10px #37FF8B;
+    }
+
+    .logo-img {
+      display: block;
+      margin: 0 auto 20px auto;
+      max-width: 120px;
+      border-radius: 10px;
+    }
+
+    .text-center a {
+      color: #4d90fe;
+      text-decoration: none;
+    }
+
+    .text-center a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container position-relative h-100 d-flex justify-content-center align-items-center">
+    <div class="login-box">
+      <form id="loginForm">
+        <img src="Resources/logo.png" alt="Logo" class="logo-img">
+        <h2>Iniciar sesión</h2>
+
+        <input type="text" id="user_name" placeholder="Nombre de usuario" required />
+        <input type="password" id="password" placeholder="Contraseña" required />
+
+        <button type="submit" class="btn btn-login">Entrar</button>
+
+        <div class="text-center mt-3">
+          ¿No tienes cuenta? <a href="sign_up.html">Regístrate</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+  document.getElementById("loginForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const user_name = document.getElementById("user_name").value;
+    const password = document.getElementById("password").value;
+
+    try {
+      const response = await axios.post("http://localhost:3000/user/login", {
+        user_name,
+        password
+      });
+
+      const token = response.data.token;
+      localStorage.setItem("token", token);
+      alert("Login exitoso");
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      console.error(error.response?.data || error.message); // Agregado para depurar
+      alert("Usuario o contraseña incorrectos");
+    }
+  });
+</script>
+
+</body>
+</html>
