@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../database');
 const auth = require('../middleware/auth');
 
-// Ejemplo: obtener empleados solo si está autenticado
+// Ruta protegida para obtener todos los empleados
 router.get('/empleados', auth, async (req, res) => {
   try {
     const [empleados] = await db.query('SELECT * FROM empleados');

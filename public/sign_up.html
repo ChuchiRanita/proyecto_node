@@ -118,25 +118,27 @@
 
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script>
-    document.getElementById("registerForm").addEventListener("submit", async function(e) {
-      e.preventDefault();
+  document.getElementById("registerForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
 
-      const user_name = document.getElementById("user_name").value;
-      const password = document.getElementById("password").value;
+    const user_name = document.getElementById("user_name").value;
+    const password = document.getElementById("password").value;
 
-      try {
-        const response = await axios.post("http://localhost:3000/user/register", {
-          user_name,
-          password
-        });
+    try {
+      const response = await axios.post("http://localhost:3000/user/register", {
+        user_name,
+        password
+      });
 
-        alert("Registro exitoso. Inicia sesión.");
-        window.location.href = "login.html";
-      } catch (error) {
-        console.error(error);
-        alert("Error al registrar usuario. Intenta con otro nombre.");
-      }
-    });
-  </script>
+      console.log(response.data); // para ver si responde correctamente
+      alert("Registro exitoso. Inicia sesión.");
+      window.location.href = "login.html";
+    } catch (error) {
+      console.error("Error en registro:", error.response?.data || error.message);
+      alert("Error al registrar usuario. Intenta con otro nombre.");
+    }
+  });
+</script>
+
 </body>
 </html>
