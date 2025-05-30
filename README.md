@@ -8,12 +8,15 @@ Dentro de la carpeta Database se encuentra la base de datos que necesita ser imp
 Credenciales del administrador en base de datos:
   -  Nombre de usuario: admin
   -  Contraseña: admin123
+    
 Aunque se agrego la pagina para registrar nuevos usuarios (con permisos solo para ver la lista de empleados), aqui dejo las credenciales del usuario ya creado en la base de datos:
   -  Nombre de usuario: User1_test
   -  Contraseña: testeo
 
       --> Importante <--
+     
      Es posible que no conecte con la base de datos si es asi debe ser porque cambie el puerto a donde se conecta de 3306 a 3307, puedes modificarlo en database.js
+     
      const mysql = require('mysql2/promise');
 
       module.exports = mysql.createPool({
