@@ -1,12 +1,367 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - Empleados</title>
+  <style>
+    /* Estilos limpios y modernos */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0; padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #fff;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background-color: #1e1e1e;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: inset 2px 2px 10px rgba(0,0,0,1),
+                  inset -1px -1px 5px rgba(255,255,255,0.1);
+    }
+    h1, h2, p {
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      margin: 6px;
+      border-radius: 6px;
+      border: 2px solid #212121;
+      background-color: #212121;
+      color: #fff;
+      font-size: 14px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,1),
+                  1px 1px 6px rgba(255,255,255,0.2);
+    }
+    input::placeholder {
+      color: #999;
+    }
+    input:focus {
+      outline: none;
+      transform: scale(1.03);
+      box-shadow: 2px 2px 6px rgba(0,0,0,1),
+                  1px 1px 6px rgba(255,255,255,0.4),
+                  inset 2px 2px 10px rgba(0,0,0,1),
+                  inset -1px -1px 5px rgba(255,255,255,0.3);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #333;
+      text-align: center;
+    }
+    th {
+      background-color: #2c2c2c;
+      color: #1877f2;
+    }
+    tr:nth-child(even) {
+      background-color: #181818;
+    }
+    tr:hover {
+      background-color: #2a2a2a;
+    }
+    button {
+      position: relative;
+      padding: 10px 20px;
+      border-radius: 7px;
+      border: 1px solid rgb(61, 106, 255);
+      font-size: 14px;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 2px;
+      background: transparent;
+      color: #fff;
+      overflow: hidden;
+      box-shadow: 0 0 0 0 transparent;
+      transition: all 0.2s ease-in;
+      cursor: pointer;
+    }
+    button:hover {
+      background: rgb(61, 106, 255);
+      box-shadow: 0 0 30px 5px rgba(0, 142, 236, 0.815);
+      transition: all 0.2s ease-out;
+    }
+    button:hover::before {
+      animation: sh02 0.5s 0s linear;
+    }
+    button::before {
+      content: '';
+      display: block;
+      width: 0px;
+      height: 86%;
+      position: absolute;
+      top: 7%;
+      left: 0%;
+      opacity: 0;
+      background: #fff;
+      box-shadow: 0 0 50px 30px #fff;
+      transform: skewX(-20deg);
+    }
+    @keyframes sh02 {
+      from {
+        opacity: 0;
+        left: 0%;
+      }
+      50% {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+        left: 100%;
+      }
+    }
+    button:active {
+      box-shadow: 0 0 0 0 transparent;
+      transition: box-shadow 0.2s ease-in;
+    }
+    .admin-section {
+      margin-top: 30px;
+      border-top: 1px solid #333;
+      padding-top: 20px;
+    }
+    .logo-img {
+      display: block;
+      margin: 0 auto 20px auto;
+      max-width: 120px;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Dashboard</h1>
-    <p>Welcome to the dashboard!</p>
+  <div class="container">
+    <h1>Node.js S.A. de C.V.</h1>
+    <img src="Resources/logo.png" alt="Logo" class="logo-img" />
+    <p>Bienvenido al panel de control</p>
+
+    <!-- Sección solo visible para admins -->
+    <div id="adminControls" class="admin-section" style="display:none;">
+      <h2>Controles de Administrador</h2>
+
+      <div id="formAgregar">
+        <input type="text" id="e_name" placeholder="Nombre" />
+        <input type="text" id="e_lastname" placeholder="Apellido" />
+        <input type="text" id="e_phone" placeholder="Teléfono" />
+        <input type="email" id="e_email" placeholder="Correo" />
+        <input type="text" id="e_address" placeholder="Dirección" />
+        <button onclick="guardarEmpleado()" class="button">Guardar</button>
+      </div>
+
+      <div id="formBuscar">
+        <input type="text" id="buscarNombre" placeholder="Buscar por nombre" />
+        <button onclick="buscarEmpleado()" class="button">Buscar</button>
+      </div>
+    </div>
+
+    <h2>Lista de Empleados</h2>
+    <table id="empleadosTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Teléfono</th>
+          <th>Correo</th>
+          <th>Dirección</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Aquí se cargan empleados -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    // Guarda empleado (solo admin)
+    async function guardarEmpleado() {
+      const token = localStorage.getItem('token');
+      if (!token) return alert('No autorizado');
+
+      const e_name = document.getElementById('e_name').value.trim();
+      const e_lastname = document.getElementById('e_lastname').value.trim();
+      const e_phone = document.getElementById('e_phone').value.trim();
+      const e_email = document.getElementById('e_email').value.trim();
+      const e_address = document.getElementById('e_address').value.trim();
+
+      if (!e_name || !e_lastname || !e_phone || !e_email || !e_address) {
+        return alert('Por favor, llena todos los campos.');
+      }
+
+      try {
+        await axios.post('http://localhost:3000/admin/empleados', {
+          e_name, e_lastname, e_phone, e_email, e_address
+        }, {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+
+        alert("Empleado agregado");
+        location.reload();
+      } catch (error) {
+        alert('Error al agregar empleado');
+        console.error(error);
+      }
+    }
+
+    // Buscar empleado (solo admin)
+    async function buscarEmpleado() {
+      const token = localStorage.getItem('token');
+      if (!token) return alert('No autorizado');
+
+      const nombre = document.getElementById('buscarNombre').value.trim();
+      if (!nombre) return alert('Ingresa un nombre para buscar');
+
+      try {
+        const res = await axios.get(`http://localhost:3000/admin/empleados/buscar/${encodeURIComponent(nombre)}`, {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+
+        renderizarTabla(res.data);
+      } catch (error) {
+        alert('Error al buscar empleado');
+        console.error(error);
+      }
+    }
+
+    // Eliminar empleado (solo admin)
+    async function eliminarEmpleado(id) {
+      const token = localStorage.getItem('token');
+      if (!token) return alert('No autorizado');
+
+      if (!confirm("¿Eliminar este empleado?")) return;
+
+      try {
+        await axios.delete(`http://localhost:3000/admin/empleados/${id}`, {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+
+        alert("Empleado eliminado");
+        location.reload();
+      } catch (error) {
+        alert('Error al eliminar empleado');
+        console.error(error);
+      }
+    }
+
+    // Actualizar empleado (solo admin)
+    async function actualizarEmpleado(id) {
+      const token = localStorage.getItem('token');
+      if (!token) return alert('No autorizado');
+
+      const fila = document.querySelector(`#row-${id}`);
+      if (!fila) return;
+
+      // Obtener valores actualizados
+      const e_name = fila.children[1].innerText.trim();
+      const e_lastname = fila.children[2].innerText.trim();
+      const e_phone = fila.children[3].innerText.trim();
+      const e_email = fila.children[4].innerText.trim();
+      const e_address = fila.children[5].innerText.trim();
+
+      try {
+        await axios.put(`http://localhost:3000/admin/empleados/${id}`, {
+          e_name, e_lastname, e_phone, e_email, e_address
+        }, {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+      } catch (error) {
+        alert('Error al actualizar empleado');
+        console.error(error);
+      }
+    }
+
+    // Renderiza tabla con empleados
+    function renderizarTabla(empleados) {
+      const tbody = document.querySelector("#empleadosTable tbody");
+      tbody.innerHTML = "";
+
+      empleados.forEach(e => {
+        const tr = document.createElement("tr");
+        tr.id = `row-${e.id_employee}`;
+
+        // Si es admin, celdas editables y botón eliminar; si user solo texto y sin botón
+        const token = localStorage.getItem('token');
+        const payload = token ? JSON.parse(atob(token.split('.')[1])) : null;
+        const isAdmin = payload?.role === 'admin';
+
+        tr.innerHTML = `
+          <td>${e.id_employee}</td>
+          <td ${isAdmin ? 'contenteditable onblur="actualizarEmpleado('+e.id_employee+')"' : ''}>${e.e_name}</td>
+          <td ${isAdmin ? 'contenteditable onblur="actualizarEmpleado('+e.id_employee+')"' : ''}>${e.e_lastname}</td>
+          <td ${isAdmin ? 'contenteditable onblur="actualizarEmpleado('+e.id_employee+')"' : ''}>${e.e_phone}</td>
+          <td ${isAdmin ? 'contenteditable onblur="actualizarEmpleado('+e.id_employee+')"' : ''}>${e.e_email}</td>
+          <td ${isAdmin ? 'contenteditable onblur="actualizarEmpleado('+e.id_employee+')"' : ''}>${e.e_address}</td>
+          <td>
+            ${isAdmin ? `<button onclick="eliminarEmpleado(${e.id_employee})" class="button">Eliminar</button>` : '-'}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Carga empleados para admin
+    async function cargarEmpleadosAdmin(token) {
+      try {
+        const res = await axios.get('http://localhost:3000/admin/empleados', {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        renderizarTabla(res.data);
+      } catch (error) {
+        alert('Error al cargar empleados');
+        console.error(error);
+      }
+    }
+
+    // Carga empleados para user
+    async function cargarEmpleadosUser(token) {
+      try {
+        const res = await axios.get('http://localhost:3000/empleados', {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        renderizarTabla(res.data);
+      } catch (error) {
+        alert('Error al cargar empleados');
+        console.error(error);
+      }
+    }
+
+    // Al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert("No has iniciado sesión");
+        return window.location.href = "login.html";
+      }
+
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const role = payload.role;
+
+        if (role === 'admin') {
+          document.getElementById('adminControls').style.display = 'block';
+          cargarEmpleadosAdmin(token);
+        } else if (role === 'user') {
+          document.getElementById('adminControls').style.display = 'none';
+          cargarEmpleadosUser(token);
+        } else {
+          alert("Rol no reconocido");
+          window.location.href = "login.html";
+        }
+      } catch (error) {
+        alert("Token inválido");
+        window.location.href = "login.html";
+      }
+    });
+  </script>
 </body>
 </html>

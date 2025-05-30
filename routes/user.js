@@ -41,6 +41,25 @@ router.post('/login', async (req, res) => {
   }
 
   try {
+    // Primero buscamos en la tabla de administradores
+    const [admins] = await db.query('SELECT * FROM administrador WHERE admin_name = ?', [user_name]);
+    if (admins.length > 0) {
+      const admin = admins[0];
+      const valid = await bcrypt.compare(password, admin.password);
+      if (!valid) {
+        return res.status(401).json({ message: 'Contraseña incorrecta' });
+      }
+
+      // Si es administrador, generamos token con role: 'admin'
+      const token = jwt.sign(
+        { id: admin.id_admin, user_name: admin.admin_name, role: 'admin' },
+        SECRET,
+        { expiresIn: '2h' }
+      );
+      return res.json({ token });
+    }
+
+    // Si no es admin, buscamos en la tabla user (usuario normal)
     const [users] = await db.query('SELECT * FROM user WHERE user_name = ?', [user_name]);
     if (users.length === 0) {
       return res.status(401).json({ message: 'Usuario no encontrado' });
@@ -52,12 +71,19 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
 
-    const token = jwt.sign({ id: user.id, user_name: user.user_name }, SECRET, { expiresIn: '2h' });
+    // Si es usuario normal, generamos token con role: 'user'
+    const token = jwt.sign(
+      { id: user.id, user_name: user.user_name, role: 'user' },
+      SECRET,
+      { expiresIn: '2h' }
+    );
     res.json({ token });
+
   } catch (error) {
     console.error("ERROR en login:", error);
     res.status(500).json({ message: 'Error en el servidor', error: error.message });
   }
 });
+
 
 module.exports = router;

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Empleados</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #1e1e1e;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #00bcd4;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #444;
+      text-align: center;
+    }
+    th {
+      background-color: #2c2c2c;
+      color: #00aaff;
+    }
+    tr:nth-child(even) {
+      background-color: #2a2a2a;
+    }
+    tr:hover {
+      background-color: #333;
+    }
+    #logout {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #ff4081;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #logout:hover {
+      background-color: #e91e63;
+    }
+    #message {
+      text-align: center;
+      margin-top: 10px;
+      color: #ff6666;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Lista de Empleados</h1>
+    <table id="empleadosTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Teléfono</th>
+          <th>Correo</th>
+          <th>Dirección</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Filas se llenan desde JS -->
+      </tbody>
+    </table>
+    <div id="message"></div>
+    <button id="logout">Cerrar sesión</button>
+  </div>
+
+  <script>
+    const tablaBody = document.querySelector("#empleadosTable tbody");
+    const messageDiv = document.getElementById("message");
+
+    function mostrarMensaje(msg) {
+      messageDiv.textContent = msg;
+    }
+
+    function limpiarTabla() {
+      tablaBody.innerHTML = "";
+    }
+
+    function crearFila(empleado) {
+      // Uso fallback para valores null/undefined
+      const safeValue = (val) => val ?? "-";
+
+      const fila = document.createElement("tr");
+      fila.innerHTML = `
+        <td>${safeValue(empleado.id_employee)}</td>
+        <td>${safeValue(empleado.e_name)}</td>
+        <td>${safeValue(empleado.e_lastname)}</td>
+        <td>${safeValue(empleado.e_phone)}</td>
+        <td>${safeValue(empleado.e_email)}</td>
+        <td>${safeValue(empleado.e_address)}</td>
+      `;
+      return fila;
+    }
+
+    async function cargarEmpleados() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        limpiarTabla();
+        mostrarMensaje("Cargando empleados...");
+        const response = await fetch("http://localhost:3000/empleados", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            mostrarMensaje("No autorizado. Por favor, inicia sesión.");
+            localStorage.removeItem("token");
+            setTimeout(() => window.location.href = "login.html", 2000);
+          } else {
+            mostrarMensaje("Error al obtener empleados.");
+          }
+          return;
+        }
+
+        const empleados = await response.json();
+        if (empleados.length === 0) {
+          mostrarMensaje("No hay empleados para mostrar.");
+          return;
+        }
+
+        empleados.forEach(empleado => {
+          const fila = crearFila(empleado);
+          tablaBody.appendChild(fila);
+        });
+        mostrarMensaje(""); // limpiar mensaje
+
+      } catch (error) {
+        console.error("Error al cargar empleados:", error);
+        mostrarMensaje("Error de red o servidor.");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", cargarEmpleados);
+
+    document.getElementById("logout").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>
